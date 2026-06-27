@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" href="favicon.ico" type="image/x-icon">
 <title>Урок 21: Гонщик — Гонка против AI | Qwen</title>
 <style>
@@ -41,7 +41,7 @@ body{ overflow: hidden; font-family:'Segoe UI','Orbitron', monospace; background
 .difficulty-btn{ animation: glassGlow 3s ease-in-out infinite; }
 
 .difficulty-info{ margin-top: 30px; padding: 20px; background: rgba(0,0,0,0.5); border-radius: 20px; max-width: 600px; text-align: center; border: 1px solid rgba(255,50,50,0.3);}
-.difficulty-info h3{ color: #ff3232; margin-bottom: 15px; font-size: 20px;}
+.difficulty-info h2{ color: #ff3232; margin-bottom: 15px; font-size: 20px;}
 .difficulty-info p{ color: #ffe0e0; margin: 8px 0; font-size: 13px; line-height: 1.6;}
 
 #simulator-page{ position: fixed; inset: 0; opacity: 0; pointer-events: none; transition: opacity 1s ease;}
@@ -138,7 +138,7 @@ body{ overflow: hidden; font-family:'Segoe UI','Orbitron', monospace; background
   </div>
   
   <div class="difficulty-info">
-    <h3>📊 Параметры уровней:</h3>
+    <h2>📊 Параметры уровней:</h2>
     <p><strong>🟢 Лёгкий:</strong> AI летит медленно, 5 ворот</p>
     <p><strong>🟡 Средний:</strong> AI летит средне, 8 ворот</p>
     <p><strong>🔴 Сложный:</strong> AI летит быстро, 12 ворот</p>
@@ -234,7 +234,6 @@ console.log('🏁 Гонщик-симулятор загружен');
 console.log('🎮 Управление: WASD + мышь для обзора 360°');
 console.log('⚠️ Правила: Столкновение с деревом = конец игры!');
 
-// ✅ Проверка загрузки Three.js
 if (typeof THREE === 'undefined') {
   document.body.innerHTML = '<div style="color:white;padding:50px;font-size:20px;text-align:center;">❌ Ошибка: Three.js не загружен. Проверьте интернет-соединение.</div>';
   throw new Error('THREE.js не загружен');
@@ -248,7 +247,6 @@ const DIFFICULTY_CONFIG = {
 
 let currentDifficulty = 'easy';
 
-// ✅ Инициализация state (без THREE.Vector3 в глобале до загрузки)
 const state = {
   animationId: null,
   gameCompleted: false,
@@ -268,7 +266,7 @@ const state = {
   aiDronePos: new THREE.Vector3(0, 10, 20),
   aiCurrentGate: 0,
   trackRadius: 40,
-  droneLastPos: new THREE.Vector3(0, 10, 30) // ✅ для проверки пересечения ворот
+  droneLastPos: new THREE.Vector3(0, 10, 30)
 };
 
 let scene, camera, renderer, droneGroup, aiDroneGroup;
@@ -277,9 +275,8 @@ let propellers = [], aiPropellers = [];
 let audioCtx = null, notifTimeout = null, lastNotifText = "";
 let keys = {};
 let mouseDown = false, lastMouseX = 0, lastMouseY = 0;
-let eventListenersAdded = false; // ✅ флаг для предотвращения дублирования
+let eventListenersAdded = false;
 
-// ✅ Переиспользуемые Vector3 (оптимизация)
 const _cameraForward = new THREE.Vector3();
 const _cameraRight = new THREE.Vector3();
 const _camTarget = new THREE.Vector3();
@@ -371,7 +368,6 @@ function exitToMenu(){
     state.timerInterval = null;
   }
   
-  // ✅ Полная очистка сцены и renderer
   cleanupScene();
   
   document.getElementById('victoryModal').classList.remove('show');
@@ -385,7 +381,6 @@ function exitToMenu(){
   if(music){ music.pause(); music.currentTime = 0; }
 }
 
-// ✅ Вынесенная функция очистки сцены
 function cleanupScene(){
   if(scene){
     while(scene.children.length > 0) {
@@ -412,7 +407,6 @@ function cleanupScene(){
   }
 }
 
-// ✅ Глубокая очистка Three.js объекта
 function disposeObject(obj){
   if(!obj) return;
   if(obj.geometry){
@@ -621,7 +615,6 @@ function createDrone(propColor){
 function initSimulator(){
   console.log('🏁 Инициализация гонщик-симулятора...');
   
-  // ✅ Полная очистка перед инициализацией
   cleanupScene();
   
   state.gameCompleted = false;
@@ -635,7 +628,7 @@ function initSimulator(){
   state.cameraAngle = 0;
   state.cameraPitch = -0.3;
   state.aiCurrentGate = 0;
-  state.aiDronePos.set(state.trackRadius + 2, 10, 0); // ✅ AI немного впереди
+  state.aiDronePos.set(state.trackRadius + 2, 10, 0);
   
   scene = new THREE.Scene();
   scene.background = new THREE.Color(0x1a0a2e);
@@ -653,7 +646,6 @@ function initSimulator(){
   renderer.toneMappingExposure = 1.2;
   
   const simPage = document.getElementById('simulator-page');
-  // ✅ Проверяем что canvas не дублируется
   if(renderer.domElement.parentNode !== simPage){
     if (simPage.firstChild) {
       simPage.insertBefore(renderer.domElement, simPage.firstChild);
@@ -691,7 +683,6 @@ function initSimulator(){
   gates = [];
   trees = [];
   
-  // ✅ Круговая трасса с воротами
   const gateSpacing = (Math.PI * 2) / config.gateCount;
   
   for(let i = 0; i < config.gateCount; i++){
@@ -727,8 +718,6 @@ function initSimulator(){
     });
   }
   
-  // ✅ Деревья вокруг трассы (препятствия)
-  // ✅ НЕ размещаем деревья слишком близко к стартовой позиции
   for(let i = 0; i < 40; i++){
     const angle = Math.random() * Math.PI * 2;
     const radiusOffset = (Math.random() - 0.5) * 15;
@@ -736,7 +725,6 @@ function initSimulator(){
     const x = Math.cos(angle) * radius;
     const z = Math.sin(angle) * radius;
     
-    // ✅ Не ставим дерево прямо на старте
     const distToStart = Math.sqrt(
       Math.pow(x - state.trackRadius, 2) +
       Math.pow(z - 0, 2)
@@ -764,14 +752,12 @@ function initSimulator(){
     trees.push({ pos: new THREE.Vector3(x, 0, z), radius: 1.5 });
   }
   
-  // ✅ Дрон игрока
   const playerDrone = createDrone(0xff3232);
   droneGroup = playerDrone.group;
   propellers = playerDrone.propellers;
   droneGroup.position.copy(state.dronePos);
   scene.add(droneGroup);
   
-  // ✅ AI-дрон
   const aiDrone = createDrone(0x00ff00);
   aiDroneGroup = aiDrone.group;
   aiPropellers = aiDrone.propellers;
@@ -789,7 +775,6 @@ function initSimulator(){
 function updateDrone(){
   if(state.gameCompleted) return;
   
-  // ✅ Используем переиспользуемые векторы
   camera.getWorldDirection(_cameraForward);
   _cameraForward.y = 0;
   _cameraForward.normalize();
@@ -819,7 +804,6 @@ function updateDrone(){
   
   state.droneVel.multiplyScalar(0.95);
   
-  // ✅ Сохраняем предыдущую позицию для проверки пересечения ворот
   state.droneLastPos.copy(state.dronePos);
   state.dronePos.add(state.droneVel);
   
@@ -839,7 +823,6 @@ function updateDrone(){
     droneGroup.rotation.z += (tiltZ - droneGroup.rotation.z) * 0.1;
   }
   
-  // ✅ AI-дрон летит по круговой трассе через ворота
   const config = DIFFICULTY_CONFIG[currentDifficulty];
   if(state.aiCurrentGate < gates.length){
     const targetGate = gates[state.aiCurrentGate];
@@ -854,7 +837,6 @@ function updateDrone(){
   
   if(aiDroneGroup){
     aiDroneGroup.position.copy(state.aiDronePos);
-    // ✅ Проверяем что индекс валидный перед обращением
     if(state.aiCurrentGate < gates.length){
       _aiVel.subVectors(gates[state.aiCurrentGate].pos, state.aiDronePos);
       if(_aiVel.length() > 0.01){
@@ -864,7 +846,6 @@ function updateDrone(){
     }
   }
   
-  // ✅ Столкновение с деревом = конец игры
   for(let i = 0; i < trees.length; i++){
     const tree = trees[i];
     const dist = state.dronePos.distanceTo(tree.pos);
@@ -876,16 +857,13 @@ function updateDrone(){
     }
   }
   
-  // ✅ Улучшенная проверка прохождения ворот - через пересечение плоскости
   if(state.gatesPassed < gates.length){
     const gate = gates[state.gatesPassed];
     const dx = Math.abs(state.dronePos.x - gate.pos.x);
     const dy = Math.abs(state.dronePos.y - gate.pos.y);
     const dz = Math.abs(state.dronePos.z - gate.pos.z);
     
-    // ✅ Проверяем что дрон в зоне ворот и двигался к ним
     if(dx < gate.width/2 && dy < gate.height/2 && dz < 4){
-      // Дополнительная проверка: предыдущая позиция была дальше
       const prevDist = state.droneLastPos.distanceTo(gate.pos);
       const currDist = state.dronePos.distanceTo(gate.pos);
       if(currDist <= prevDist){
@@ -905,7 +883,6 @@ function updateDrone(){
     }
   }
   
-  // ✅ Обновление UI (с проверкой на существование элементов)
   const nextGate = gates[state.gatesPassed];
   const nextGateElem = document.getElementById('next-gate');
   const aiDistanceElem = document.getElementById('ai-distance');
@@ -941,7 +918,6 @@ function animate(){
   }
   state.animationId = requestAnimationFrame(animate);
   
-  // ✅ Обновляем точное время гонки в каждом кадре
   if(state.raceStartTime > 0 && !state.gameCompleted){
     state.raceTime = (Date.now() - state.raceStartTime) / 1000;
     const raceTimeElem = document.getElementById('race-time');
@@ -964,7 +940,6 @@ function animate(){
   renderer.render(scene, camera);
 }
 
-// ✅ Debounce для resize
 let resizeTimeout = null;
 function handleResize(){
   if(!camera || !renderer) return;
@@ -1000,7 +975,6 @@ function fullGameRestart(){
   setTimeout(() => { state.isRestarting = false; }, 500);
 }
 
-// ✅ Event listeners регистрируются только ОДИН раз
 function setupEventListeners(){
   if(eventListenersAdded) return;
   eventListenersAdded = true;
@@ -1023,7 +997,6 @@ function setupEventListeners(){
     mouseDown = false;
   });
   
-  // ✅ Используем делегирование через document для мыши, чтобы не зависеть от renderer
   document.addEventListener('mousedown', (e) => {
     if(renderer && renderer.domElement && (e.target === renderer.domElement || renderer.domElement.contains(e.target))){
       mouseDown = true;
@@ -1047,7 +1020,6 @@ function setupEventListeners(){
     }
   });
   
-  // ✅ Кнопки - один раз
   const resetBtn = document.getElementById('resetBtn');
   if(resetBtn){
     resetBtn.addEventListener('click', () => { fullGameRestart(); });
@@ -1084,7 +1056,6 @@ function setupEventListeners(){
     defeatExitBtn.addEventListener('click', exitToMenu);
   }
   
-  // ✅ Очистка при закрытии страницы
   window.addEventListener('beforeunload', () => {
     if(state.animationId) cancelAnimationFrame(state.animationId);
     if(state.timerInterval) clearInterval(state.timerInterval);
@@ -1097,7 +1068,6 @@ function setupEventListeners(){
   });
 }
 
-// ✅ Инициализация event listeners сразу
 setupEventListeners();
 </script>
 </body>
