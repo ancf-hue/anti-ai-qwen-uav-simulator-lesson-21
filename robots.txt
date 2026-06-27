@@ -1,0 +1,28 @@
+# robots.txt для Anti-AI Qwen UAV Simulator - Lesson 2
+# https://anti-ai-qwen-uav-simulator-lesson-2-livid.vercel.app/
+
+User-agent: *
+Allow: /
+Allow: /index.html
+Allow: /*.js$
+Allow: /*.css$
+Allow: /*.png$
+Allow: /*.jpg$
+Allow: /*.jpeg$
+Allow: /*.gif$
+Allow: /*.svg$
+Allow: /*.ico$
+Allow: /*.mp3$
+Allow: /*.wav$
+
+# Запрет индексации системных файлов Vercel
+Disallow: /_next/
+Disallow: /api/
+Disallow: /.well-known/
+Disallow: /_vercel/
+
+# Sitemap
+Sitemap: https://anti-ai-qwen-uav-simulator-lesson-2-livid.vercel.app/sitemap.xml
+
+# Хост (для Яндекса)
+Host: https://anti-ai-qwen-uav-simulator-lesson-2-livid.vercel.app/
